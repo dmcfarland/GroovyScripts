@@ -12,9 +12,13 @@ import org.apache.lucene.search.*
 import org.apache.lucene.store.*
 import org.apache.lucene.util.*
 
-lucene = new LuceneIndex();
+// This script takes all the text files in the current directory and indexes each line.
+// The script then goes on to search the index for a term which has been passed in as a command line argument.
+// Gutenberg.org is a good source of material for testing indexing.
 
 // Main program
+assertSearchTermArgumentPassed()
+lucene = new LuceneIndex();
 deleteOldIndex()
 indexTextFilesInCurrentDir()
 searchIndexForTerm(this.args[0])
@@ -52,6 +56,10 @@ int benchmark(Closure closure) {
 	return now - start
 }
 
+void assertSearchTermArgumentPassed(){
+	assert args.length == 1 : "Must pass one term to search for i.e. groovy ${this.getClass().getName()}.groovy Monkey"
+}
+
 class LuceneIndex {
 	def indexName = "index"
 	def maxSearchMatches = 10000;
@@ -79,3 +87,4 @@ class LuceneIndex {
 		return matchingStrings
 	}
 }
+
