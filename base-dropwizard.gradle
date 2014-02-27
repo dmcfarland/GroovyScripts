@@ -1,0 +1,39 @@
+buildscript {
+    repositories { jcenter() }
+    dependencies { classpath 'com.github.jengelman.gradle.plugins:shadow:0.8' }
+}
+
+import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+import com.github.jengelman.gradle.plugins.shadow.transformers.ManifestResourceTransformer
+import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
+
+apply plugin: com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
+
+repositories {
+    mavenCentral()
+}
+
+def mainClass = project.ext.mainClass
+
+shadow {
+    baseName "${project.name}"
+    artifactAttached false
+    destinationDir "${project.buildDir}/distributions"
+
+    transformer(ServiceFileTransformer)
+    transformer(ManifestResourceTransformer) {
+        attributes 'Main-Class': mainClass
+        attributes 'Test-Entry': 'PASSED'
+    }
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
+
+task run(type: JavaExec, description: "Start application") {
+    classpath project.sourceSets.main.runtimeClasspath
+    main = mainClass
+    args = ["server", "config/dev.yml"]
+}
+
+task stage(dependsOn: ['shadowJar'], description: 'Stage project for Heroku')
